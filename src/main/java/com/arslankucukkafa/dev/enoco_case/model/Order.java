@@ -1,6 +1,11 @@
 package com.arslankucukkafa.dev.enoco_case.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Table;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 
 import java.util.List;
 
@@ -10,17 +15,10 @@ public class Order extends BaseEntity {
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "customer_id")
     private Customer customer;
-
     @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "order_order_items",
-            joinColumns = @JoinColumn(name = "order_id"),
-            inverseJoinColumns = @JoinColumn(name = "order_item_id")
-    )
     private List<OrderItem> orderItems;
-
+    private double totalOrderPrice;
     private String location;
-
 
     public Customer getCustomer() {
         return customer;
@@ -29,17 +27,28 @@ public class Order extends BaseEntity {
     public void setCustomer(Customer customer) {
         this.customer = customer;
     }
+
     public List<OrderItem> getOrderItems() {
         return orderItems;
     }
+
     public void setOrderItems(List<OrderItem> orderItems) {
         this.orderItems = orderItems;
     }
+
+    public double getTotalOrderPrice() {
+        return totalOrderPrice;
+    }
+
+    public void setTotalOrderPrice(double totalOrderPrice) {
+        this.totalOrderPrice = totalOrderPrice;
+    }
+
     public String getLocation() {
         return location;
     }
+
     public void setLocation(String location) {
         this.location = location;
     }
-
 }

@@ -1,6 +1,6 @@
 package com.arslankucukkafa.dev.enoco_case.service.impl;
 
-import com.arslankucukkafa.dev.enoco_case.exception.ResourceAlreadyExistException;
+import com.arslankucukkafa.dev.enoco_case.exception.InsufficientStockException;
 import com.arslankucukkafa.dev.enoco_case.exception.ResourceNotFoundException;
 import com.arslankucukkafa.dev.enoco_case.model.Cart;
 import com.arslankucukkafa.dev.enoco_case.model.Customer;
@@ -10,8 +10,11 @@ import com.arslankucukkafa.dev.enoco_case.model.dto.ItemDto;
 import com.arslankucukkafa.dev.enoco_case.repository.CartRepository;
 import com.arslankucukkafa.dev.enoco_case.service.CartService;
 import com.arslankucukkafa.dev.enoco_case.service.ProductService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,6 +24,7 @@ import java.util.List;
 public class CartServiceImpl implements CartService {
     private CartRepository cartRepository;
     private ProductService productService;
+    private final Logger LOGGER = LoggerFactory.getLogger(CartServiceImpl.class);
 
 
     @Autowired
@@ -29,13 +33,10 @@ public class CartServiceImpl implements CartService {
         this.productService = productService;
     }
 
-    /*
-         Note: normalde customerId üzerinden cartId'ye ulaşılır. Ama mevcut user için bir principal holder oluşturulmadığı için
-         CustomerService'i burda çagırmamız Circular dependency'e yol açıyor. Dogrudan Sepet Id'si üzerinden işlem yapmak daha mantıklı geldi.
-    */
     @Override
     public Cart emptyCart(Long customerId) {
-        Cart cart = cartRepository.findCartByCustomerId(customerId).orElseThrow(() -> new ResourceNotFoundException("Cart not found with id: " + customerId));
+        Cart cart = cartRepository.findCartByCustomerId(customerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart not found with id: " + customerId));
         try {
             // if cart is already empty, return the cart
             if (cart.getCartItems().isEmpty()) return cart;
@@ -44,16 +45,17 @@ public class CartServiceImpl implements CartService {
                 return cartRepository.save(cart);
             }
         } catch (Exception e) {
-            throw new RuntimeException("Error while saving cart");
+            LOGGER.error("Error while emptying cart with id: " + customerId, e);
+            throw new IllegalStateException("Error while emptying cart with id: " + customerId, e);
         }
     }
 
     @Override
     public Cart createCart(Customer customer) {
+        Cart cart = new Cart();
+        cart.setCustomer(customer);
+        cart.setCartItems(Collections.emptyList());
         try {
-            Cart cart = new Cart();
-            cart.setCustomer(customer);
-            cart.setCartItems(Collections.emptyList());
             return cartRepository.save(cart);
         } catch (Exception e) {
             throw new RuntimeException("Error while saving cart: " + e.getMessage());
@@ -61,14 +63,19 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
+    @Transactional
     public Cart addItemToCart(Long customerId, ItemDto itemDto) {
         Cart cart = cartRepository.findCartByCustomerId(customerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart not found with id: " + customerId));
 
         var items = cart.getCartItems();
-        Product product = productService.getProduct(itemDto.getProductId()); // Burda ilgili id ile product yoksa exception fırlatır
-        // CartId auto generated olmasına gerek yok gibi geldi. CustomerId ile cartId'yi bulmak daha mantıklı geldi.
-        // Aynı üründen varsa miktarı güncelle, yoksa yeni ürün ekle
+        Product product = productService.getProduct(itemDto.getProductId());
+
+        // Stok kontrolü
+        if (product.getStock() < itemDto.getQuantity()) {
+            throw new InsufficientStockException("Not enough stock for product: " + product.getName());
+        }
+
         var existingItem = items.stream()
                 .filter(i -> i.getProduct().getId().equals(itemDto.getProductId()))
                 .findFirst()
@@ -84,12 +91,18 @@ public class CartServiceImpl implements CartService {
         }
 
         cart.setCartItems(items);
-        return cartRepository.save(cart);
+        try {
+            return cartRepository.save(cart);
+        } catch (Exception e) {
+            LOGGER.error("Error while saving cart with id: " + customerId, e);
+            throw new IllegalStateException("Error while saving cart with id: " + customerId, e);
+        }
     }
 
     @Override
     public Cart removeItemFromCart(Long customerId, ItemDto itemDto) {
-        Cart cart = cartRepository.findCartByCustomerId(customerId).orElseThrow(() -> new ResourceNotFoundException("Cart not found with id: " + customerId));
+        Cart cart = cartRepository.findCartByCustomerId(customerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart not found with id: " + customerId));
 
         List<OrderItem> items = cart.getCartItems();
 
@@ -100,14 +113,22 @@ public class CartServiceImpl implements CartService {
 
         if (existingItem != null) {
             int totalQuantity = existingItem.getQuantity() - itemDto.getQuantity();
-            // Eğer miktar 0'dan büyükse güncelle, değilse sil
-            if (totalQuantity > 0) existingItem.setQuantity(totalQuantity);
-            else items.remove(existingItem);
+            if (totalQuantity > 0) {
+                existingItem.setQuantity(totalQuantity);
+            } else {
+                items.remove(existingItem);
+            }
         } else {
-            throw new ResourceNotFoundException("Remove item not found in cart");
+            throw new ResourceNotFoundException("Item not found in cart");
         }
+
         cart.setCartItems(items);
-        return cartRepository.save(cart);
+        try {
+            return cartRepository.save(cart);
+        } catch (Exception e) {
+            LOGGER.error("Error while saving cart with id: " + customerId, e);
+            throw new IllegalStateException("Error while saving cart with id: " + customerId, e);
+        }
     }
 
     /*
@@ -117,17 +138,12 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Cart getCart(Long customerId) {
-        return cartRepository.findCartByCustomerId(customerId).orElseThrow(() -> new ResourceAlreadyExistException("Cart not found"));
-    }
-
-    public List<Cart> getAllCarts() {
-        return cartRepository.findAll();
+        return cartRepository.findCartByCustomerId(customerId).orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
     }
 
     @Override
-    public Cart updateCart(Long cartId, List<ItemDto> items) {
-        Cart cart = cartRepository.findCartById(cartId).orElseThrow(() -> new ResourceNotFoundException("Cart not found with id: " + cartId));
-        if (cart != null) {
+    public Cart updateCart(Long customerId, List<ItemDto> items) {
+        Cart cart = cartRepository.findCartByCustomerId(customerId).orElseThrow(() -> new ResourceNotFoundException("Cart not found with id: " + customerId));
             List<OrderItem> itemList = new ArrayList<>();
             for (ItemDto itemDto : items) {
                 Product product = productService.getProduct(itemDto.getProductId());
@@ -139,10 +155,12 @@ public class CartServiceImpl implements CartService {
             // ItemDto'dan gelen productlar veritabanından çekilip Item listesine eklendi
             // Todo: Stock kontrolünü burda mı yapmalıyız yoksa, Order veritabanına kaydederken mi yapmalıyız?
             cart.setCartItems(itemList);
-            return cartRepository.save(cart);
-        } else throw new ResourceNotFoundException("Cart not found");
+            try {
+                return cartRepository.save(cart);
+            } catch (Exception e) {
+                LOGGER.error("Error while saving cart with id: " + customerId, e);
+                throw new IllegalStateException("Error while saving cart with id: " + customerId, e);
+            }
     }
 
 }
-
-        // FIXME: Bakıldıgında sadece güncellenebilr Item field'ı var. Bu yüzden RequestBody olarak Item alıyor.

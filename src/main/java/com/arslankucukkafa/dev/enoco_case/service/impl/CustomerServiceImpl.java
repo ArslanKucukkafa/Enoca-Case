@@ -31,7 +31,6 @@ public class CustomerServiceImpl implements CustomerService {
             Customer savedCustomer = customerRepository.save(customer);
             cartService.createCart(savedCustomer); //fixme: Bunu try catch içinden çıkarmalıyız. Çünkü cartService zaten try catch içeriyor.
             return savedCustomer;
-
         } catch (Exception e) {
             throw new RuntimeException("Error while saving customer");
         }

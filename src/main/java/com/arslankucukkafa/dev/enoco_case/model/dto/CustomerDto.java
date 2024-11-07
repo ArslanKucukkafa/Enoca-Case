@@ -1,15 +1,6 @@
 package com.arslankucukkafa.dev.enoco_case.model.dto;
 
-import com.arslankucukkafa.dev.enoco_case.model.Cart;
 import com.arslankucukkafa.dev.enoco_case.model.Customer;
-import com.arslankucukkafa.dev.enoco_case.model.Order;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class CustomerDto {
     public String username;

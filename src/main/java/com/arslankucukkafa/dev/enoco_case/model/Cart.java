@@ -1,16 +1,20 @@
 package com.arslankucukkafa.dev.enoco_case.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
 
 import java.util.List;
 
 @Entity
 @Table(name = "cart")
 public class Cart extends BaseEntity {
-    @OneToOne(cascade = {CascadeType.REMOVE, CascadeType.MERGE})
-    @JoinColumn(name = "customer_id")
-    @JsonIgnore
+
+    @OneToOne(cascade = {CascadeType.REMOVE, CascadeType.MERGE}, orphanRemoval = true)
     public Customer customer;
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
@@ -24,7 +28,6 @@ public class Cart extends BaseEntity {
     public Customer getCustomer() {
         return customer;
     }
-
     public void setCustomer(Customer customer) {
         this.customer = customer;
     }
@@ -33,7 +36,10 @@ public class Cart extends BaseEntity {
     }
     public void setCartItems(List<OrderItem> cartItems) {
         this.cartItems = cartItems;
-        this.cartTotalPrice = calculateTotalPrice();
+        for (OrderItem item : cartItems) {
+            item.setCart(this); // Ensure the cart reference is set
+        }
+        updateCartTotalPrice();
     }
     public double getCartTotalPrice() {
         return cartTotalPrice;
@@ -42,11 +48,11 @@ public class Cart extends BaseEntity {
         this.cartTotalPrice = cartTotalPrice;
     }
 
-    public double calculateTotalPrice(){
+    public void updateCartTotalPrice(){
         double totalPrice = 0;
         for (OrderItem item : cartItems) {
             totalPrice += item.getTotalPrice();
         }
-        return totalPrice;
+        this.cartTotalPrice = totalPrice;
     }
 }

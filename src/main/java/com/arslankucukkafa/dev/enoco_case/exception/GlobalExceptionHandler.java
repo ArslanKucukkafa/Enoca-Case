@@ -11,14 +11,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({ResourceNotFoundException.class})
     public ResponseEntity<Object> handleStudentNotFoundException(ResourceNotFoundException exception) {
         return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .status(HttpStatus.NOT_FOUND)
                 .body(exception.getMessage());
     }
 
-    @ExceptionHandler({ResourceAlreadyExistException.class})
-    public ResponseEntity<Object> handleStudentAlreadyExistsException(ResourceAlreadyExistException exception) {
+    @ExceptionHandler({InsufficientStockException.class})
+    public ResponseEntity<Object> handleStudentAlreadyExistsException(InsufficientStockException exception) {
         return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .status(HttpStatus.BAD_REQUEST)
                 .body(exception.getMessage());
     }
     @ExceptionHandler({RuntimeException.class})

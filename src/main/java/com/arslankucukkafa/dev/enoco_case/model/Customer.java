@@ -1,6 +1,12 @@
 package com.arslankucukkafa.dev.enoco_case.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 
 import java.util.List;
 
@@ -12,8 +18,7 @@ public class Customer extends BaseEntity {
     @Column
     public String email;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "cart_id")
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private Cart cart;
 
     @OneToMany(cascade = CascadeType.ALL)

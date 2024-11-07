@@ -1,6 +1,5 @@
 package com.arslankucukkafa.dev.enoco_case;
 
-import com.arslankucukkafa.dev.enoco_case.model.Product;
 import com.arslankucukkafa.dev.enoco_case.model.dto.CustomerDto;
 import com.arslankucukkafa.dev.enoco_case.model.dto.ProductDto;
 import com.arslankucukkafa.dev.enoco_case.service.CustomerService;

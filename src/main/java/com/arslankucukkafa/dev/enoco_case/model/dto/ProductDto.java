@@ -4,9 +4,10 @@ import com.arslankucukkafa.dev.enoco_case.model.Product;
 import jakarta.annotation.Nullable;
 
 public class ProductDto {
+
+    // Product update ederken id fieldı gerektiği için Nullable olarak tanımladım. Create ederkende null olabilir.
     @Nullable
     public Long id;
-
     public String name;
     public String description;
     public int stock;

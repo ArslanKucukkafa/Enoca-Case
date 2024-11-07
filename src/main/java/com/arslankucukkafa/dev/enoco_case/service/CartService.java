@@ -7,7 +7,7 @@ import com.arslankucukkafa.dev.enoco_case.model.dto.ItemDto;
 import java.util.List;
 
 public interface CartService {
-    Cart emptyCart(Long id);
+    Cart emptyCart(Long customerId);
     Cart createCart(Customer customerId);
     Cart updateCart(Long id, List<ItemDto> items);
     Cart addItemToCart(Long customerId, ItemDto itemDto);

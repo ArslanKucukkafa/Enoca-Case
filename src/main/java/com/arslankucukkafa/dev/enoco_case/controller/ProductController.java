@@ -3,13 +3,22 @@ package com.arslankucukkafa.dev.enoco_case.controller;
 import com.arslankucukkafa.dev.enoco_case.model.Product;
 import com.arslankucukkafa.dev.enoco_case.model.dto.ProductDto;
 import com.arslankucukkafa.dev.enoco_case.service.impl.ProductServiceImpl;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/product")
+@RequestMapping("/api/v1/products")
 public class ProductController {
 
     private final ProductServiceImpl productService;
@@ -18,25 +27,27 @@ public class ProductController {
         this.productService = productService;
     }
 
-    // TODO: GetProduct CreateProduct UpdateProduct DeleteProduct eklemeleri yapılacak
-
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getProduct(){
-        return null;
+    // TODO: getProduct implement edilecek
+    @Operation(summary = "This endpoint is returning the product")
+    @GetMapping("/{productId}")
+    public ResponseEntity<?> getProduct(@PathVariable Long productId){
+        return new ResponseEntity<>(productService.getProduct(productId), null, 200);
     }
 
-    @GetMapping("/ls")
+    @Operation(summary = "This endpoint is returning all products")
+    @GetMapping
     public ResponseEntity<?> getProducts(){
         List<Product> products = productService.getProducts();
         return new ResponseEntity<>(products, null, 200);
     }
 
+    @Operation(summary = "This endpoint is creating a product")
     @PostMapping
     public ResponseEntity<?> createProduct(@RequestBody ProductDto productDto){
         return new ResponseEntity<>( productService.createProduct(productDto), null, 201);
     }
 
-    // Burda Product'a ait productId dışında uniqe bir alan olmadığı için productId üzerinden işlem yapılacak, Dolayısı ile tüm modeli aldım.
+    @Operation(summary = "This endpoint is updating a product")
     @PutMapping
     public ResponseEntity<?> updateProduct(@RequestBody ProductDto productDto){
         try {
@@ -46,10 +57,11 @@ public class ProductController {
         }
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteProduct(@RequestParam Long id){
+    @Operation(summary = "This endpoint is deleting a product")
+    @DeleteMapping("/{productId}")
+    public ResponseEntity<?> deleteProduct(@PathVariable Long productId){
         try {
-            productService.deleteProduct(id);
+            productService.deleteProduct(productId);
             return new ResponseEntity<>(null, null, 204);
         } catch (RuntimeException e){
             return new ResponseEntity<>(e.getMessage(), null, 404);

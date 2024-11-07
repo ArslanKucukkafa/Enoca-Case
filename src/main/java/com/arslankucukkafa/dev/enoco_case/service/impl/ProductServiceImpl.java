@@ -1,29 +1,25 @@
 package com.arslankucukkafa.dev.enoco_case.service.impl;
 
 import com.arslankucukkafa.dev.enoco_case.exception.ResourceNotFoundException;
+import com.arslankucukkafa.dev.enoco_case.model.OrderItem;
 import com.arslankucukkafa.dev.enoco_case.model.Product;
 import com.arslankucukkafa.dev.enoco_case.model.dto.ProductDto;
 import com.arslankucukkafa.dev.enoco_case.repository.ProductRepository;
 import com.arslankucukkafa.dev.enoco_case.service.ProductService;
-import com.arslankucukkafa.dev.enoco_case.util.ProductUpdateHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.TransactionSystemException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional
 public class ProductServiceImpl implements ProductService {
     private ProductRepository productRepository;
-    private ProductUpdateHandler productUpdateHandler;
 
     @Autowired
-    public ProductServiceImpl(ProductRepository productRepository, ProductUpdateHandler productUpdateHandler) {
+    public ProductServiceImpl(ProductRepository productRepository) {
         this.productRepository = productRepository;
-        this.productUpdateHandler = productUpdateHandler;
     }
 
     public Product createProduct(ProductDto productDto){
@@ -44,33 +40,54 @@ public class ProductServiceImpl implements ProductService {
         if(productDto.getId() == null) throw new RuntimeException("Product id is required");
 
         Product product = productDto.productDtoToProduct(productDto);
-        Optional<Product> isExist = productRepository.findById(product.getId());
-        if (isExist.isPresent()) {
-            try {
-                Product updatedProduct = productRepository.save(product);
-                // todo: burda stock güncellemesi için cartları güncellemeye gerek yok.
-                productUpdateHandler.handleProductUpdate(updatedProduct);
-                return updatedProduct;
-            } catch (TransactionSystemException e) {
-                throw new RuntimeException("Transaction failed: " + e.getMessage(), e);
+        Product existingProduct = productRepository.findById(product.getId()).orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+        existingProduct.setName(product.getName());
+        existingProduct.setDescription(product.getDescription());
+        existingProduct.setStock(product.getStock());
+        existingProduct.setPrice(product.getPrice());
+
+        for (OrderItem orderItem : existingProduct.getOrderItems()) {
+            orderItem.updateTotalPrice();
+            if (orderItem.getCart() != null) {
+                orderItem.getCart().updateCartTotalPrice();
             }
-        } else {
-            throw new RuntimeException("Product not found");
+        }
+
+        try {
+            Product updatedProduct = productRepository.save(product);
+            // todo: burda stock güncellemesi için cartları güncellemeye gerek yok.
+      //      productUpdateHandler.handleProductUpdate(updatedProduct);
+            return updatedProduct;
+        } catch (Exception e) {
+            throw new RuntimeException("Exception while updating product: ", e);
         }
     }
 
     public void deleteProduct(Long id){
-        boolean isExist = productRepository.existsById(id);
-        if(isExist){
-            productRepository.deleteById(id);
-        } else throw new RuntimeException("Product not found");
+        Product product = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+        for (OrderItem orderItem : product.getOrderItems()) {
+            if (orderItem.getCart() != null) {
+                orderItem.getCart().getCartItems().remove(orderItem);
+                orderItem.getCart().updateCartTotalPrice();
+            }
+        }
+        try {
+            productRepository.deleteById(product.getId());
+        } catch (Exception e) {
+            throw new RuntimeException("Error while deleting product: ", e);
+        }
     }
 
     @Override
     public void updateStock(int stock, Long productId) {
         Product product = productRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundException("Product not found"));
         product.setStock(stock);
-        productRepository.save(product);
+         try {
+             productRepository.save(product);
+         } catch (Exception e) {
+             throw new RuntimeException("Error while updating stock: ",e);
+         }
     }
 
 
