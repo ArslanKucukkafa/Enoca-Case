@@ -9,23 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.arslankucukkafa.dev</groupId>
-	<artifactId>enoco_case</artifactId>
+	<artifactId>enoca_case</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>enoco_case</name>
-	<description>enoco_case</description>
-	<url/>
-	<licenses>
-		<license/>
-	</licenses>
-	<developers>
-		<developer/>
-	</developers>
-	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
-	</scm>
+	<name>enoca_case</name>
+	<description>enoca_case</description>
 	<properties>
 		<java.version>17</java.version>
 	</properties>
