@@ -43,7 +43,7 @@ public class CartController {
     }
 
     @Operation(summary = "This endpoint is removing a product from the cart of the customer")
-    @DeleteMapping("/{customerId}/remove-item}")
+    @DeleteMapping("/{customerId}/remove-item")
     public ResponseEntity<?> removeProductFromCart(@PathVariable Long customerId, @RequestBody ItemDto itemDto){
         return new ResponseEntity<>(cartService.removeItemFromCart(customerId, itemDto), null, HttpStatus.OK);
     }

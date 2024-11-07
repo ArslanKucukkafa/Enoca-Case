@@ -1,5 +1,6 @@
 package com.arslankucukkafa.dev.enoco_case.service.impl;
 
+import com.arslankucukkafa.dev.enoco_case.exception.CartEmptyException;
 import com.arslankucukkafa.dev.enoco_case.exception.InsufficientStockException;
 import com.arslankucukkafa.dev.enoco_case.exception.ResourceNotFoundException;
 import com.arslankucukkafa.dev.enoco_case.model.Cart;
@@ -34,6 +35,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Order placeOrder(Long customerId) {
         Cart currentCart = cartService.getCart(customerId);
+
+        if (currentCart.getCartItems().isEmpty()) {
+            throw new CartEmptyException("Cart is empty. No order to place.");
+        }
+
         Order order = cartToOrder(customerId);
 
         /* İlk for döngüsü ile stock kontrolü yapılıyor. Eğer stock yetersizse hata döner.

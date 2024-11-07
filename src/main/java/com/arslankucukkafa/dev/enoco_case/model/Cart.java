@@ -1,5 +1,6 @@
 package com.arslankucukkafa.dev.enoco_case.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToOne;
@@ -14,6 +15,7 @@ import java.util.List;
 @Table(name = "cart")
 public class Cart extends BaseEntity {
 
+    @JsonIgnore
     @OneToOne(cascade = {CascadeType.REMOVE, CascadeType.MERGE}, orphanRemoval = true)
     public Customer customer;
     @ManyToMany(cascade = CascadeType.ALL)
@@ -37,7 +39,7 @@ public class Cart extends BaseEntity {
     public void setCartItems(List<OrderItem> cartItems) {
         this.cartItems = cartItems;
         for (OrderItem item : cartItems) {
-            item.setCart(this); // Ensure the cart reference is set
+            item.setCart(this);
         }
         updateCartTotalPrice();
     }
