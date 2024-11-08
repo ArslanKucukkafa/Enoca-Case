@@ -22,26 +22,27 @@ public class EnocoCaseApplication {
 		SpringApplication.run(EnocoCaseApplication.class, args);
 	}
 
-	@PostConstruct
-	public void init(){
+	private void initializeProduct(String name, double price, int stock, String description) {
 		ProductDto product = new ProductDto();
-		product.setName("Elma");
-		product.setPrice(100.0);
-		product.setStock(100);
-		product.setDescription("Elma Ağacı");
-
-		ProductDto product2 = new ProductDto();
-		product2.setName("Armut");
-		product2.setPrice(200.0);
-		product2.setStock(200);
-		product2.setDescription("Armut Ağacı");
+		product.setName(name);
+		product.setPrice(price);
+		product.setStock(stock);
+		product.setDescription(description);
 		productService.createProduct(product);
-		productService.createProduct(product2);
+	}
 
+	private void initializeCustomer(String username, String email) {
 		CustomerDto customer = new CustomerDto();
-		customer.setUsername("Arslan");
-		customer.setEmail("arslankucukkafa@mgial.com");
+		customer.setUsername(username);
+		customer.setEmail(email);
 		customerService.addCustomer(customer);
-
+	}
+	@PostConstruct
+	public void init() {
+		initializeProduct("Macbook", 1, 40, "Apple Macbook Pro");
+		initializeProduct("Karpuz", 50.0, 50, "Karpuz Tarlası");
+		initializeProduct("Elma", 100.0, 100, "Elma Ağacı");
+		initializeProduct("Armut", 200.0, 200, "Armut Ağacı");
+		initializeCustomer("Arslan", "arslankucukkafa@mgial.com");
 	}
 }
