@@ -48,10 +48,10 @@ public class ProductController {
     }
 
     @Operation(summary = "This endpoint is updating a product")
-    @PutMapping
-    public ResponseEntity<?> updateProduct(@RequestBody ProductDto productDto){
+    @PutMapping("/{productId}")
+    public ResponseEntity<?> updateProduct(@PathVariable Long productId, @RequestBody ProductDto productDto){
         try {
-            return new ResponseEntity<>(productService.updateProduct(productDto), null, 200);
+            return new ResponseEntity<>(productService.updateProduct(productId, productDto), null, 200);
         } catch (RuntimeException e){
             return new ResponseEntity<>(e.getMessage(), null, 404);
         }

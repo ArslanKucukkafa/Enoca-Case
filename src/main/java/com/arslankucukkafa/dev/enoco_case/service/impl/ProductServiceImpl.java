@@ -35,18 +35,17 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findAll();
     }
 
-    public Product updateProduct(ProductDto productDto) {
-        // ProductDto'da id field'ını Nullable olarak tanımladıgım için burda kontrol ettim.
-        if(productDto.getId() == null) throw new RuntimeException("Product id is required");
+    public Product updateProduct(Long productId,ProductDto productDto) {
 
         Product product = productDto.productDtoToProduct(productDto);
-        Product existingProduct = productRepository.findById(product.getId()).orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+        Product existingProduct = productRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
         existingProduct.setName(product.getName());
         existingProduct.setDescription(product.getDescription());
         existingProduct.setStock(product.getStock());
         existingProduct.setPrice(product.getPrice());
 
+        // Burda ilişkili olan orderItem'lar ve cart'lar güncelleniyor.
         for (OrderItem orderItem : existingProduct.getOrderItems()) {
             orderItem.updateTotalPrice();
             if (orderItem.getCart() != null) {
@@ -56,8 +55,6 @@ public class ProductServiceImpl implements ProductService {
 
         try {
             Product updatedProduct = productRepository.save(product);
-            // todo: burda stock güncellemesi için cartları güncellemeye gerek yok.
-      //      productUpdateHandler.handleProductUpdate(updatedProduct);
             return updatedProduct;
         } catch (Exception e) {
             throw new RuntimeException("Exception while updating product: ", e);

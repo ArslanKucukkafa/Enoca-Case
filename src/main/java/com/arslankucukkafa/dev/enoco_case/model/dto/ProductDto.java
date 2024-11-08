@@ -5,9 +5,6 @@ import jakarta.annotation.Nullable;
 
 public class ProductDto {
 
-    // Product update ederken id fieldı gerektiği için Nullable olarak tanımladım. Create ederkende null olabilir.
-    @Nullable
-    public Long id;
     public String name;
     public String description;
     public int stock;
@@ -15,21 +12,11 @@ public class ProductDto {
 
     public Product productDtoToProduct(ProductDto productDto) {
         Product product = new Product();
-        product.setId(productDto.getId());
         product.setName(productDto.getName());
         product.setDescription(productDto.getDescription());
         product.setStock(productDto.getStock());
         product.setPrice(productDto.getPrice());
         return product;
-    }
-
-    @Nullable
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(@Nullable Long id) {
-        this.id = id;
     }
 
     public String getName() {
