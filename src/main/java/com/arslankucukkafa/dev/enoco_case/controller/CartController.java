@@ -1,25 +1,28 @@
 package com.arslankucukkafa.dev.enoco_case.controller;
 
 import com.arslankucukkafa.dev.enoco_case.model.dto.ItemDto;
-import com.arslankucukkafa.dev.enoco_case.service.impl.CartServiceImpl;
+import com.arslankucukkafa.dev.enoco_case.service.CartService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/cart")
 public class CartController {
 
-    private final CartServiceImpl cartService;
+    private final CartService cartService;
 
-    public CartController(CartServiceImpl cartService) {
+    public CartController(CartService cartService) {
         this.cartService = cartService;
     }
 
@@ -34,6 +37,12 @@ public class CartController {
     @PostMapping("/{customerId}/empty")
     public ResponseEntity<?> emptyCart(@PathVariable Long customerId){
         return new ResponseEntity<>(cartService.emptyCart(customerId), null, HttpStatus.OK);
+    }
+
+    @Operation(summary = "This endpoint is updating the cart of the customer")
+    @PutMapping("/{customerId}/update")
+    public ResponseEntity<?> updateCart(@PathVariable Long customerId, @RequestBody List<ItemDto> items){
+        return new ResponseEntity<>(cartService.updateCart(customerId, items), null, HttpStatus.OK);
     }
 
     @Operation(summary = "This endpoint is adding a product to the cart of the customer")

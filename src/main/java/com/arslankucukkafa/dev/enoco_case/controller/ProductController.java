@@ -2,7 +2,7 @@ package com.arslankucukkafa.dev.enoco_case.controller;
 
 import com.arslankucukkafa.dev.enoco_case.model.Product;
 import com.arslankucukkafa.dev.enoco_case.model.dto.ProductDto;
-import com.arslankucukkafa.dev.enoco_case.service.impl.ProductServiceImpl;
+import com.arslankucukkafa.dev.enoco_case.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,9 +21,9 @@ import java.util.List;
 @RequestMapping("/api/v1/products")
 public class ProductController {
 
-    private final ProductServiceImpl productService;
+    private final ProductService productService;
 
-    public ProductController(ProductServiceImpl productService) {
+    public ProductController(ProductService productService) {
         this.productService = productService;
     }
 

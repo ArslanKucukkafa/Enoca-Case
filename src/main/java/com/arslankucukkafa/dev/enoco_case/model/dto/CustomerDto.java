@@ -4,12 +4,13 @@ import com.arslankucukkafa.dev.enoco_case.model.Customer;
 
 public class CustomerDto {
     public String username;
-    public String email;
+    public String password;
+
 
     public Customer CustomerDtoToCustomer(){
         Customer customer = new Customer();
         customer.setUsername(this.username);
-        customer.setEmail(this.email);
+        customer.setPassword(this.password);
         return customer;
     }
 
@@ -21,12 +22,12 @@ public class CustomerDto {
         this.username = username;
     }
 
-    public String getEmail() {
-        return email;
+
+    public String getPassword() {
+        return password;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setPassword(String password) {
+        this.password = password;
     }
-
 }

@@ -1,6 +1,6 @@
 package com.arslankucukkafa.dev.enoco_case.controller;
 
-import com.arslankucukkafa.dev.enoco_case.service.impl.OrderServiceImpl;
+import com.arslankucukkafa.dev.enoco_case.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/orders")
 public class OrderController {
-    private final OrderServiceImpl orderService;
+    private final OrderService orderService;
 
-    public OrderController(OrderServiceImpl orderService) {
+    public OrderController(OrderService orderService) {
         this.orderService = orderService;
     }
 

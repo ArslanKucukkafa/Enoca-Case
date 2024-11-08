@@ -16,7 +16,7 @@ public class Customer extends BaseEntity {
     @Column
     public String username;
     @Column
-    public String email;
+    public String password;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private Cart cart;
@@ -31,25 +31,21 @@ public class Customer extends BaseEntity {
     public void setUsername(String username) {
         this.username = username;
     }
-    public String getEmail() {
-        return email;
+    public String getPassword() {
+        return password;
     }
-    public void setEmail(String email) {
-        this.email = email;
+    public void setPassword(String password) {
+        this.password = password;
     }
-
     public Cart getCart() {
         return cart;
     }
-
     public void setCart(Cart cart) {
         this.cart = cart;
     }
-
     public List<Order> getOrders() {
         return orders;
     }
-
     public void setOrders(List<Order> orders) {
         this.orders = orders;
     }

@@ -152,8 +152,6 @@ public class CartServiceImpl implements CartService {
                 item.setQuantity(itemDto.getQuantity());
                 itemList.add(item);
             }
-            // ItemDto'dan gelen productlar veritabanından çekilip Item listesine eklendi
-            // Todo: Stock kontrolünü burda mı yapmalıyız yoksa, Order veritabanına kaydederken mi yapmalıyız?
             cart.setCartItems(itemList);
             try {
                 return cartRepository.save(cart);

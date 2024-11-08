@@ -31,10 +31,10 @@ public class EnocoCaseApplication {
 		productService.createProduct(product);
 	}
 
-	private void initializeCustomer(String username, String email) {
+	private void initializeCustomer(String username, String password) {
 		CustomerDto customer = new CustomerDto();
 		customer.setUsername(username);
-		customer.setEmail(email);
+		customer.setPassword(password);
 		customerService.addCustomer(customer);
 	}
 	@PostConstruct
@@ -43,6 +43,6 @@ public class EnocoCaseApplication {
 		initializeProduct("Karpuz", 50.0, 50, "Karpuz Tarlası");
 		initializeProduct("Elma", 100.0, 100, "Elma Ağacı");
 		initializeProduct("Armut", 200.0, 200, "Armut Ağacı");
-		initializeCustomer("Arslan", "arslankucukkafa@mgial.com");
+		initializeCustomer("Arslan", "123456789");
 	}
 }
