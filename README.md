@@ -1,14 +1,17 @@
-Proje Adı: Enoca Case
+## Proje Adı: Enoca Case
 
-Proje Açıklaması
+### Proje Açıklaması
 Enoca Case, müşteri ve ürün yönetimi için geliştirilmiş bir Spring Boot uygulamasıdır. Uygulama, ürünlerin ve müşterilerin eklenmesi, güncellenmesi ve listelenmesi gibi temel işlevleri sağlar.  
 
-Kullanılan Bağımlılıklar
+### Kullanılan Bağımlılıklar
 - Spring Web
 - Spring Data JPA
 - PostgreSQL Driver
 - Docker Compose
 - OpenAPI
+
+### Kurulum
+Proje Docker Compose kullanılarak çalıştırılmıştır. Docker Compose kullanarak projeyi çalıştırmak için aşağıdaki adımları takip edebilirsiniz.
 
 Projeyi klonlayın.
 ```
